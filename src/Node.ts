@@ -1,6 +1,7 @@
 import { O_APPEND } from "constants";
 import { EventEmitter } from "events";
 import ws, { Data } from "ws";
+import { Manager } from "./Manager";
 
 export interface NodeType {
   id: string;
@@ -33,6 +34,7 @@ export class Node extends EventEmitter {
   public connected = false;
 
   public stats!: Stats;
+  public manager: Manager;
 
   public id: string;
   public address: string;
@@ -42,16 +44,18 @@ export class Node extends EventEmitter {
   private socket!: ws;
   private shards: number;
 
-  public constructor(options: NodeType, userID: string, shards = 1) {
+  public constructor(manager: Manager, options: NodeType) {
     super();
 
-    this.userID = userID;
-    this.shards = shards;
+    this.userID = manager.options.userID;
+    this.shards = manager.options.shards ?? 1;
 
     this.password = options.password = options.password ?? "youshallnotpass";
     this.address = options.address;
     this.port = options.port;
     this.id = options.id;
+
+    this.manager = manager;
   }
 
   public connect() {
@@ -66,9 +70,9 @@ export class Node extends EventEmitter {
 
     // set the listeners
     this.socket
-      .on("open", (data: Data) => this.emit("opened", this))
-      .on("error", (err) => this.emit("error", err))
-      .on("close", (code, reason) => this.emit("closed", code, reason))
+      .on("open", () => this.manager.emit("opened", this))
+      .on("error", (err) => this.manager.emit("error", err))
+      .on("close", (code, reason) => this.manager.emit("closed", code, reason))
       .on("message", (data) => this._message(data));
 
     this.on("opened", () => (this.connected = true));
@@ -91,8 +95,19 @@ export class Node extends EventEmitter {
           uptime,
         };
         break;
-    }
 
-    //console.log(data);
+      case "playerUpdate":
+        const player = this.manager.players.get(data.guildId);
+        if (!player) {
+          return;
+        }
+
+        player.position = data.state.position;
+        break;
+    }
+  }
+
+  public send(op: string, data: Record<string, any>) {
+    return this.socket.send(JSON.stringify({ op, ...data }));
   }
 }

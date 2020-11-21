@@ -1,15 +1,20 @@
 import { EventEmitter } from "events";
 import { Node, NodeType } from "./Node";
 
+import { Player } from "./Player";
+
 interface ManagerOptions {
   nodes: NodeType[];
   shards?: number;
   userID: string;
+  send: ((guild: string, data: Record<string, any>) => any);
 }
 
 export class Manager extends EventEmitter {
   public options: ManagerOptions;
+  
   public nodes = new Map<string, Node>();
+  public players = new Map<string, Player>();
 
   public constructor(options: ManagerOptions) {
     super();
@@ -28,16 +33,22 @@ export class Manager extends EventEmitter {
     }
 
     for (const supplied of this.options.nodes) {
-      const node = new Node(supplied, this.options.userID, this.options.shards);
-
-      node
-        .on("error", (err: Error) => this.emit("error", err))
-        .on("opened", (data: any) => this.emit("opened", data))
-        .on("closed", (code, reason) => this.emit("closed", code, reason));
+      const node = new Node(this, supplied);
+      node.connect();
 
       this.nodes.set(node.id, node);
-
-      node.connect();
     }
+  }
+
+  public spawn(guild: string, node: Node) {
+    let player = this.players.get(guild);
+    if (player) {
+      return player;
+    }
+
+    player = new Player(node, this, guild);
+    this.players.set(guild, player);
+
+    return player;
   }
 }
