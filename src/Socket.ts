@@ -94,6 +94,7 @@ export class Socket {
    * @private
    */
   private _open() {
+    this.connected = true;
     this.manager.emit("socketConnected", this);
   }
 
@@ -104,7 +105,6 @@ export class Socket {
    * @private
    */
   private _close(code: number, reason: string) {
-    this.connected = true;
     this.manager.emit("socketClosed", this, code, reason);
   }
 

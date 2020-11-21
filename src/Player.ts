@@ -70,14 +70,14 @@ export class Player extends EventEmitter {
    * @type {Record<string, any>}
    * @private
    */
-  #server!: Record<string, any> | null;
+  _server?: Record<string, any> | null;
 
   /**
    * The server update
    * @type {Record<string, any>}
    * @private
    */
-  #state!: Record<string, any> | null;
+  _state?: Record<string, any> | null;
 
   public constructor(manager: Manager, socket: Socket, guild: string) {
     super();
@@ -92,13 +92,15 @@ export class Player extends EventEmitter {
    * @param {Record<string, any>} update
    */
   public handleVoice(update: Record<string, any>) {
-    if ("token" in update) {
-      this.#server = update;
+    if (update.token) {
+      this._server = update;
     } else {
-      this.#state = update
+      this._state = update
     }
 
-    this.sendVoiceUpdate();
+    if (this._server && this._state) {
+      this.sendVoiceUpdate();
+    }
   }
 
   /**
@@ -106,17 +108,17 @@ export class Player extends EventEmitter {
    * @private
    */
   private sendVoiceUpdate() {
-    if (!this.#state || !this.#state) {
+    if (!this._state || !this._state) {
       return;
     }
 
-    this.socket.send("voiceUpdate", {
-      sessionId: this.#state.session_id,
-      event: this.#server
+    this.send("voiceUpdate", {
+      sessionId: this._state.session_id,
+      event: this._server
     })
 
-    this.#server = null;
-    this.#state = null;
+    delete this._server;
+    delete this._state;
   }
 
   public connect(channel: string, options: ConnectOptions = {}) {
@@ -124,7 +126,7 @@ export class Player extends EventEmitter {
       op: 4,
       d: {
         guild_id: this.guild,
-        channel,
+        channel_id: channel,
         self_deaf: options.deafen ?? false,
         self_mute: options.mute ?? false
       }
@@ -132,6 +134,8 @@ export class Player extends EventEmitter {
 
     this.channel = channel;
     this.connected = true;
+
+    this.setVolume(this.volume);
 
     return this;
   }
