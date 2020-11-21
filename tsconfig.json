@@ -7,6 +7,9 @@
     "noImplicitAny": true,
     "alwaysStrict": true,
     "strict": true,
-    "outDir": "build"
+    "outDir": "build",
+    "removeComments": true,
+    "types": ["node"],
+    "declaration": true
   }
 }

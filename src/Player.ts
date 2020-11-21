@@ -1,81 +1,139 @@
 import { EventEmitter } from "events";
 import { Manager } from "./Manager";
-import { Node } from "./Node";
+import { Socket } from "./Socket";
 
-interface PlayOptions {
-  startTime?: number;
-  endTime?: number;
-  replace?: boolean;
-}
-
-interface ConnectOptions {
-  deaf?: boolean;
-  // idfk why youd want this but aight, whatever you say lavalink
-  mute?: boolean;
-}
+import { PlayOptions, ConnectOptions } from "./index";
 
 export class Player extends EventEmitter {
-  public playing = false;
-  public paused = false;
-  public volume = 100;
-  public position = 0;
+  /**
+   * If the player has been connected to a voice channel
+   * @type {boolean}
+   */
   public connected = false;
+
+  /**
+   * If the player is playing a track or not
+   * @type {boolean}
+   */
+  public playing = false;
+
+  /**
+   * If the player has been paused
+   * @type {boolean}
+   */
+  public paused = false;
+
+  /**
+   * The volume the player is at
+   * @type {number}
+   */
+  public volume = 50;
+
+  /**
+   * The position of the currently playing track
+   * @type {number}
+   */
+  public position = 0;
+
+  /**
+   * The current track
+   * @type {string}
+   */
   public track!: string;
 
-  public node: Node;
+  /**
+   * The socket the player will use to send data
+   * @type {Socket}
+   */
+  public socket: Socket;
+
+  /**
+   * The manager the player will use
+   * @type {Manager}
+   */
   public manager: Manager;
 
+  /**
+   * The guild the player was spawned in
+   * @type {string}
+   */
   public guild: string;
-  public channel?: string;
 
-  private _server: any;
-  private _state: any;
+  /**
+   * The voice channel ID the channel is connected to
+   * @type {string}
+   */
+  public channel!: string;
 
-  public constructor(node: Node, manager: Manager, guild: string) {
+  /**
+   * The server update
+   * @type {Record<string, any>}
+   * @private
+   */
+  #server!: Record<string, any> | null;
+
+  /**
+   * The server update
+   * @type {Record<string, any>}
+   * @private
+   */
+  #state!: Record<string, any> | null;
+
+  public constructor(manager: Manager, socket: Socket, guild: string) {
     super();
 
-    this.node = node;
     this.manager = manager;
+    this.socket = socket;
     this.guild = guild;
   }
 
-  public provide(update: any) {
+  /**
+   * Handles the voice packets from discord
+   * @param {Record<string, any>} update
+   */
+  public handleVoice(update: Record<string, any>) {
     if ("token" in update) {
-      this._server = update
+      this.#server = update;
     } else {
-      this._state = update;
+      this.#state = update
     }
 
-    return;
+    this.sendVoiceUpdate();
   }
 
+  /**
+   * Sends the voice updates
+   * @private
+   */
   private sendVoiceUpdate() {
-    if (!this._state || !this._server) {
+    if (!this.#state || !this.#state) {
       return;
     }
 
-    this.send("voiceUpdate", {
-      sessionId: this._state.session_id,
-      event: this._server
+    this.socket.send("voiceUpdate", {
+      sessionId: this.#state.session_id,
+      event: this.#server
     })
 
-    delete this._server;
-    delete this._state;
+    this.#server = null;
+    this.#state = null;
   }
 
-  public connect(channel?: string, options: ConnectOptions = {}) {
+  public connect(channel: string, options: ConnectOptions = {}) {
     this.manager.options.send(this.guild, {
       op: 4,
       d: {
         guild_id: this.guild,
-        channel_id: channel ?? null,
-        self_deaf: options.deaf ?? false,
+        channel,
+        self_deaf: options.deafen ?? false,
         self_mute: options.mute ?? false
       }
     });
 
     this.channel = channel;
-    return this.connected = true;
+    this.connected = true;
+
+    return this;
   }
 
   public play(track: string, options: PlayOptions = {}) {
@@ -92,9 +150,9 @@ export class Player extends EventEmitter {
     return this.send("stop");
   }
 
-  public pause(pause = true) {
-    this.paused = pause;
-    return this.send("pause", { pause });
+  public pause(state = true) {
+    this.paused = state;
+    return this.send("pause", { state });
   }
 
   public resume() {
@@ -111,6 +169,6 @@ export class Player extends EventEmitter {
   }
 
   public send(op: string, data?: Record<string, any>) {
-    return this.node.send(op, { guildId: this.guild, ...data });
+    return this.socket.send(op, { guildId: this.guild, ...data });
   }
 }
