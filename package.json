@@ -1,7 +1,7 @@
 {
-  "name": "eclipse",
+  "name": "eclipse.js",
   "version": "1.0.0",
-  "description": "A shitty lavalink client that *should* work with most JavaScript libraries",
+  "description": "A generic lavalink client",
   "main": "./build/index.js",
   "repository": "git@github.com:Sxmurai/eclipse.git",
   "author": "Sxmurai <gavrw0607@gmail.com>",
