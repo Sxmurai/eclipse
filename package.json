@@ -8,6 +8,7 @@
   "license": "GPL-3.0",
   "private": false,
   "dependencies": {
+    "eris": "^0.14.0",
     "ws": "^7.4.0"
   },
   "devDependencies": {

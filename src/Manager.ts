@@ -35,7 +35,7 @@ export class Manager extends EventEmitter {
         .on("opened", (data: any) => this.emit("opened", data))
         .on("closed", (code, reason) => this.emit("closed", code, reason));
 
-      this.nodes.set(node.options.id, node);
+      this.nodes.set(node.id, node);
 
       node.connect();
     }

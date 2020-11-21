@@ -1,3 +1,4 @@
+import { O_APPEND } from "constants";
 import { EventEmitter } from "events";
 import ws, { Data } from "ws";
 
@@ -8,10 +9,35 @@ export interface NodeType {
   password?: string;
 }
 
+interface Stats {
+  memory: MemoryStats;
+  cpu: CPUStats;
+  uptime: number;
+}
+
+interface MemoryStats {
+  reservable: number;
+  used: number;
+  free: number;
+  allocated: number;
+}
+
+interface CPUStats {
+  cores: number;
+  systemLoad: number;
+  lavalinkLoad: number;
+}
+
 export class Node extends EventEmitter {
-  public options: NodeType;
   public userID: string;
   public connected = false;
+
+  public stats!: Stats;
+
+  public id: string;
+  public address: string;
+  public port: number;
+  private password?: string;
 
   private socket!: ws;
   private shards: number;
@@ -22,15 +48,17 @@ export class Node extends EventEmitter {
     this.userID = userID;
     this.shards = shards;
 
-    options.password = options.password ?? "youshallnotpass";
-    this.options = options;
+    this.password = options.password = options.password ?? "youshallnotpass";
+    this.address = options.address;
+    this.port = options.port;
+    this.id = options.id;
   }
 
   public connect() {
     // connect to the websocket
-    this.socket = new ws(`ws://${this.options.address}:${this.options.port}`, {
+    this.socket = new ws(`ws://${this.address}:${this.port}`, {
       headers: {
-        Authorization: this.options.password,
+        Authorization: this.password,
         "User-Id": this.userID,
         "Num-Shards": this.shards,
       },
@@ -38,7 +66,7 @@ export class Node extends EventEmitter {
 
     // set the listeners
     this.socket
-      .on("open", (data: Data) => this.emit("opened", data))
+      .on("open", (data: Data) => this.emit("opened", this))
       .on("error", (err) => this.emit("error", err))
       .on("close", (code, reason) => this.emit("closed", code, reason))
       .on("message", (data) => this._message(data));
@@ -46,13 +74,25 @@ export class Node extends EventEmitter {
     this.on("opened", () => (this.connected = true));
   }
 
-  private _message(data: Data) {
+  private _message(data: any) {
     try {
       data = JSON.parse(data.toString());
     } catch {
       this.emit("error", new Error("Could not parse recieved data"));
     }
 
-    console.log(data);
+    switch (data.op) {
+      case "stats":
+        const { memory, cpu, uptime } = data;
+
+        this.stats = {
+          memory,
+          cpu,
+          uptime,
+        };
+        break;
+    }
+
+    //console.log(data);
   }
 }
