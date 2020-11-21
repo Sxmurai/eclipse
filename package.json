@@ -1,0 +1,13 @@
+{
+  "name": "eclipse",
+  "version": "1.0.0",
+  "description": "A shitty lavalink client that *should* work with most JavaScript libraries",
+  "main": "./build/index.js",
+  "repository": "git@github.com:Sxmurai/eclipse.git",
+  "author": "Sxmurai <gavrw0607@gmail.com>",
+  "license": "GPL-3.0",
+  "private": false,
+  "dependencies": {
+    "ws": "^7.4.0"
+  }
+}
