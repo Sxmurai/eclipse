@@ -103,7 +103,7 @@ export class Socket {
    * @private
    */
   private _open() {
-    if (this.manager.options.resume) {
+    if (this.manager.options.resume?.enabled) {
       this.manager.options.resume!.key =
         this.manager.options.resume!.key ?? Math.random().toString(36);
 
