@@ -130,10 +130,13 @@ export class Socket {
 
     switch (data.op) {
       case "stats":
-        this.stats = data;
-
-        //@ts-expect-error
-        delete this.stats.op;
+        this.stats = {
+          memory: data.memory,
+          cpu: data.cpu,
+          uptime: data.uptime,
+          playingPlayers: data.playingPlayers,
+          players: data.players
+        }
         break;
 
       case "playerUpdate":
