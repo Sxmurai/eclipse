@@ -67,6 +67,7 @@ declare module 'eclipse/build/Manager' {
         update(voice: Record<string, any>): void;
         connect(): void;
         spawn(guild: string, node?: Socket): Player;
+        search(term: string, node?: Socket): Promise<any>;
     }
 }
 
@@ -110,6 +111,7 @@ declare module 'eclipse/build/Player' {
         constructor(manager: Manager, socket: Socket, guild: string);
         handleVoice(update: Record<string, any>): void;
         connect(channel: string, options?: ConnectOptions): this;
+        disconnect(): boolean;
         play(track: string, options?: PlayOptions): void;
         stop(): void;
         pause(state?: boolean): void;
