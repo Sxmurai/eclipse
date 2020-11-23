@@ -89,7 +89,6 @@ declare module 'eclipse/build/Player' {
     import { Socket } from "eclipse/build/Socket";
     import { PlayOptions, ConnectOptions } from "eclipse/build/index";
     export class Player extends EventEmitter {
-        #private;
         connected: boolean;
         playing: boolean;
         paused: boolean;
@@ -100,6 +99,8 @@ declare module 'eclipse/build/Player' {
         manager: Manager;
         guild: string;
         channel: string;
+        _server?: Record<string, any> | null;
+        _state?: Record<string, any> | null;
         constructor(manager: Manager, socket: Socket, guild: string);
         handleVoice(update: Record<string, any>): void;
         connect(channel: string, options?: ConnectOptions): this;
