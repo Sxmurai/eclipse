@@ -2,161 +2,173 @@
 // Dependencies for this module:
 //   events
 
-declare module "eclipse" {
-  export * from "eclipse/build/Manager";
-  export * from "eclipse/build/Socket";
-  export * from "eclipse/build/Player";
-  export interface Node {
-    id: string;
-    host: string;
-    port: number;
-    password?: string;
-    https?: boolean;
-  }
-  export interface ManagerOptions {
-    nodes: Node[];
-    shards?: number;
-    user: string;
-    send: (id: string, payload: any) => any;
-  }
-  export interface ConnectOptions {
-    deafen?: boolean;
-    mute?: boolean;
-  }
-  export interface PlayOptions {
-    startTime?: number;
-    endTime?: number;
-    noReplace?: boolean;
-  }
-  export interface SocketStats {
-    memory: MemoryStats;
-    cpu: CPUStats;
-    uptime: number;
-    playingPlayers: number;
-    players: number;
-  }
-  interface MemoryStats {
-    reservable: number;
-    used: number;
-    free: number;
-    allocated: number;
-  }
-  interface CPUStats {
-    cores: number;
-    systemLoad: number;
-    lavalinkLoad: number;
-  }
+declare module 'eclipse' {
+    export * from "eclipse/build/Manager";
+    export * from "eclipse/build/Socket";
+    export * from "eclipse/build/Player";
+    export interface Node {
+        id: string;
+        host: string;
+        port: number;
+        password?: string;
+        https?: boolean;
+    }
+    export interface ManagerOptions {
+        nodes: Node[];
+        shards?: number;
+        user: string;
+        resume?: Resume;
+        send: ((id: string, payload: any) => any);
+    }
+    interface Resume {
+        timeout?: number;
+        key?: string;
+        enabled: boolean;
+    }
+    export interface ConnectOptions {
+        deafen?: boolean;
+        mute?: boolean;
+    }
+    export interface PlayOptions {
+        startTime?: number;
+        endTime?: number;
+        noReplace?: boolean;
+    }
+    export interface SocketStats {
+        memory: MemoryStats;
+        cpu: CPUStats;
+        uptime: number;
+        playingPlayers: number;
+        players: number;
+    }
+    interface MemoryStats {
+        reservable: number;
+        used: number;
+        free: number;
+        allocated: number;
+    }
+    interface CPUStats {
+        cores: number;
+        systemLoad: number;
+        lavalinkLoad: number;
+    }
 }
 
-declare module "eclipse/build/Manager" {
-  import type { ManagerOptions } from "eclipse/build/index";
-  import { EventEmitter } from "events";
-  import { Socket } from "eclipse/build/Socket";
-  import { Player } from "eclipse/build/Player";
-  export class Manager extends EventEmitter {
-    options: ManagerOptions;
-    sockets: Map<string, Socket>;
-    players: Map<string, Player>;
-    constructor(options: ManagerOptions);
-    update(voice: Record<string, any>): void;
-    connect(): void;
-    spawn(guild: string, node?: Socket): Player;
-  }
+declare module 'eclipse/build/Manager' {
+    import type { ManagerOptions } from "eclipse/build/index";
+    import { EventEmitter } from "events";
+    import { Socket } from "eclipse/build/Socket";
+    import { Player } from "eclipse/build/Player";
+    export class Manager extends EventEmitter {
+        options: ManagerOptions;
+        sockets: Map<string, Socket>;
+        players: Map<string, Player>;
+        constructor(options: ManagerOptions);
+        update(voice: Record<string, any>): void;
+        connect(): void;
+        spawn(guild: string, node?: Socket): Player;
+    }
 }
 
-declare module "eclipse/build/Socket" {
-  import { Manager } from "eclipse/build/Manager";
-  import { Node, SocketStats } from "eclipse/build/index";
-  export class Socket {
-    #private;
-    manager: Manager;
-    stats: SocketStats;
-    connected: boolean;
-    id: string;
-    host: string;
-    port: number;
-    password: string;
-    https: boolean;
-    constructor(manager: Manager, node: Node);
-    connect(): void;
-    send(op: string, data?: Record<string, any>): void;
-  }
+declare module 'eclipse/build/Socket' {
+    import { Manager } from "eclipse/build/Manager";
+    import { Node, SocketStats } from "eclipse/build/index";
+    export class Socket {
+        #private;
+        manager: Manager;
+        stats: SocketStats;
+        connected: boolean;
+        id: string;
+        host: string;
+        port: number;
+        password: string;
+        https: boolean;
+        constructor(manager: Manager, node: Node);
+        connect(): void;
+        send(op: string, data?: Record<string, any>): void;
+    }
 }
 
-declare module "eclipse/build/Player" {
-  import { EventEmitter } from "events";
-  import { Manager } from "eclipse/build/Manager";
-  import { Socket } from "eclipse/build/Socket";
-  import { PlayOptions, ConnectOptions } from "eclipse/build/index";
-  export class Player extends EventEmitter {
-    connected: boolean;
-    playing: boolean;
-    paused: boolean;
-    volume: number;
-    position: number;
-    track: string;
-    socket: Socket;
-    manager: Manager;
-    guild: string;
-    channel: string;
-    _server?: Record<string, any> | null;
-    _state?: Record<string, any> | null;
-    constructor(manager: Manager, socket: Socket, guild: string);
-    handleVoice(update: Record<string, any>): void;
-    connect(channel: string, options?: ConnectOptions): this;
-    play(track: string, options?: PlayOptions): void;
-    stop(): void;
-    pause(state?: boolean): void;
-    resume(): void;
-    seek(position: number): void;
-    setVolume(volume: number): void;
-    send(op: string, data?: Record<string, any>): void;
-    on(reason: "start" | "end" | "stuck" | "error", extra: any): any;
-  }
+declare module 'eclipse/build/Player' {
+    import { EventEmitter } from "events";
+    import { Manager } from "eclipse/build/Manager";
+    import { Socket } from "eclipse/build/Socket";
+    import { PlayOptions, ConnectOptions } from "eclipse/build/index";
+    export class Player extends EventEmitter {
+        connected: boolean;
+        playing: boolean;
+        paused: boolean;
+        volume: number;
+        position: number;
+        track: string;
+        socket: Socket;
+        manager: Manager;
+        guild: string;
+        channel: string;
+        _server?: Record<string, any> | null;
+        _state?: Record<string, any> | null;
+        constructor(manager: Manager, socket: Socket, guild: string);
+        handleVoice(update: Record<string, any>): void;
+        connect(channel: string, options?: ConnectOptions): this;
+        play(track: string, options?: PlayOptions): void;
+        stop(): void;
+        pause(state?: boolean): void;
+        resume(): void;
+        seek(position: number): void;
+        setVolume(volume: number): void;
+        send(op: string, data?: Record<string, any>): void;
+    }
 }
 
-declare module "eclipse/build/index" {
-  export * from "eclipse/build/Manager";
-  export * from "eclipse/build/Socket";
-  export * from "eclipse/build/Player";
-  export interface Node {
-    id: string;
-    host: string;
-    port: number;
-    password?: string;
-    https?: boolean;
-  }
-  export interface ManagerOptions {
-    nodes: Node[];
-    shards?: number;
-    user: string;
-    send: (id: string, payload: any) => any;
-  }
-  export interface ConnectOptions {
-    deafen?: boolean;
-    mute?: boolean;
-  }
-  export interface PlayOptions {
-    startTime?: number;
-    endTime?: number;
-    noReplace?: boolean;
-  }
-  export interface SocketStats {
-    memory: MemoryStats;
-    cpu: CPUStats;
-    uptime: number;
-    playingPlayers: number;
-    players: number;
-  }
-  interface MemoryStats {
-    reservable: number;
-    used: number;
-    free: number;
-    allocated: number;
-  }
-  interface CPUStats {
-    cores: number;
-    systemLoad: number;
-    lavalinkLoad: number;
-  }
+declare module 'eclipse/build/index' {
+    export * from "eclipse/build/Manager";
+    export * from "eclipse/build/Socket";
+    export * from "eclipse/build/Player";
+    export interface Node {
+        id: string;
+        host: string;
+        port: number;
+        password?: string;
+        https?: boolean;
+    }
+    export interface ManagerOptions {
+        nodes: Node[];
+        shards?: number;
+        user: string;
+        resume?: Resume;
+        send: ((id: string, payload: any) => any);
+    }
+    interface Resume {
+        timeout?: number;
+        key?: string;
+        enabled: boolean;
+    }
+    export interface ConnectOptions {
+        deafen?: boolean;
+        mute?: boolean;
+    }
+    export interface PlayOptions {
+        startTime?: number;
+        endTime?: number;
+        noReplace?: boolean;
+    }
+    export interface SocketStats {
+        memory: MemoryStats;
+        cpu: CPUStats;
+        uptime: number;
+        playingPlayers: number;
+        players: number;
+    }
+    interface MemoryStats {
+        reservable: number;
+        used: number;
+        free: number;
+        allocated: number;
+    }
+    interface CPUStats {
+        cores: number;
+        systemLoad: number;
+        lavalinkLoad: number;
+    }
 }
+
