@@ -91,6 +91,18 @@ export class Socket {
       }
     );
 
+    this.#ws
+      .on("open", this._open.bind(this))
+      .on("close", (code, reason) => this._close(code, reason))
+      .on("error", (err) => this._error(err))
+      .on("message", (data) => this._message(data));
+  }
+
+  /**
+   * When the websocket opens
+   * @private
+   */
+  private _open() {
     if (this.manager.options.resume) {
       this.manager.options.resume!.key =
         this.manager.options.resume!.key ?? Math.random().toString(36);
@@ -104,18 +116,6 @@ export class Socket {
       });
     }
 
-    this.#ws
-      .on("open", this._open.bind(this))
-      .on("close", (code, reason) => this._close(code, reason))
-      .on("error", (err) => this._error(err))
-      .on("message", (data) => this._message(data));
-  }
-
-  /**
-   * When the websocket opens
-   * @private
-   */
-  private _open() {
     this.connected = true;
     this.manager.emit("socketConnected", this);
   }
