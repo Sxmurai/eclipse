@@ -71,16 +71,38 @@ export class Socket {
    * Connects to lavalink
    */
   public connect() {
+    const headers: any = {
+      Authorization: this.password,
+      "User-Id": this.manager.options.user,
+      "Num-Shards": this.manager.options.shards,
+    };
+
+    if (
+      this.manager.options.resume!.enabled &&
+      this.manager.options.resume!.key
+    ) {
+      headers["Resume-Key"] = this.manager.options.resume!.key;
+    }
+
     this.#ws = new ws(
       `ws${this.https ? "s" : ""}://${this.host}:${this.port}`,
       {
-        headers: {
-          Authorization: this.password,
-          "User-Id": this.manager.options.user,
-          "Num-Shards": this.manager.options.shards,
-        },
+        headers,
       }
     );
+
+    if (this.manager.options.resume) {
+      this.manager.options.resume!.key =
+        this.manager.options.resume!.key ?? Math.random().toString(36);
+
+      this.manager.options.resume!.timeout =
+        this.manager.options.resume!.timeout ?? 60;
+
+      this.send("configureResuming", {
+        key: this.manager.options.resume.key,
+        timoeut: this.manager.options.resume.timeout,
+      });
+    }
 
     this.#ws
       .on("open", this._open.bind(this))

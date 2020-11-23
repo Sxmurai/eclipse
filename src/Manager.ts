@@ -19,6 +19,8 @@ export class Manager extends EventEmitter {
         : options.shards
       : 1;
 
+    options.resume = options.resume ?? { enabled: false };
+
     this.options = options;
   }
 
@@ -51,7 +53,7 @@ export class Manager extends EventEmitter {
 
     let player = this.players.get(guild);
     if (!player) {
-      player = new Player(this, node, guild); 
+      player = new Player(this, node, guild);
       this.players.set(guild, player);
     }
 

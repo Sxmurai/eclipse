@@ -69,6 +69,7 @@ export interface ManagerOptions {
 interface Resume {
   timeout?: number;
   key?: string;
+  enabled: boolean
 }
 
 export interface ConnectOptions {
