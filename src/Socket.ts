@@ -128,19 +128,51 @@ export class Socket {
       );
     }
 
+    const player = this.manager.players.get(data.guildId);
+
     switch (data.op) {
+      case "event":
+        switch (data.type) {
+          case "TrackStartEvent":
+            player!.track = data.track;
+            player!.emit("start", player!.track);
+            break;
+
+          case "TrackEndEvent":
+            //@ts-expect-error
+            player!.track = null;
+            player!.emit("end", data.reason);
+            break;
+
+          case "TrackExceptionEvent":
+            player!.emit("error", new Error(data.error));
+            break;
+
+          case "TrackStuckEvent":
+            player!.emit("stuck", data.thresholdMs);
+            break;
+
+          default:
+            console.warn(
+              `Unknown event type, here is the raw data:\n\n${JSON.stringify(
+                data
+              )}`
+            );
+            break;
+        }
+        break;
+
       case "stats":
         this.stats = {
           memory: data.memory,
           cpu: data.cpu,
           uptime: data.uptime,
           playingPlayers: data.playingPlayers,
-          players: data.players
-        }
+          players: data.players,
+        };
         break;
 
       case "playerUpdate":
-        const player = this.manager.players.get(data.guildId);
         if (player) {
           player.position = data.state.position;
         }
@@ -149,6 +181,6 @@ export class Socket {
   }
 
   public send(op: string, data?: Record<string, any>) {
-    return this.#ws.send(JSON.stringify({ op, ...data }))
+    return this.#ws.send(JSON.stringify({ op, ...data }));
   }
 }

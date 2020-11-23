@@ -13,6 +13,7 @@
   },
   "typings": "./types/index.d.ts",
   "dependencies": {
+    "eris": "^0.14.0",
     "node-fetch": "^2.6.1",
     "ws": "^7.4.0"
   },
