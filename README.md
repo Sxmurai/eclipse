@@ -3,10 +3,6 @@
   <h4>A generic lavalink client</h4>
 </div>
 
-## Disclaimers
-
-This package is in beta, therefore the player events (such as when the track ends) is not implemented. So until then, don't use this.
-
 ## Examples
 
 eris:
@@ -105,6 +101,12 @@ client
         if (!player.playing && !player.paused) {
           player.play(tracks[0].track);
         }
+
+        player.on("end", () => {
+          message.channel.createMessage(`Song has finished.`);
+          player.disconnect();
+          bot.music.players.delete(message.guildID);
+        });
         break;
     }
   });
