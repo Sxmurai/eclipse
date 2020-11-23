@@ -140,6 +140,22 @@ export class Player extends EventEmitter {
     return this;
   }
 
+  public disconnect() {
+    this.manager.options.send(this.guild, {
+      op: 4,
+      d: {
+        guild_id: this.guild,
+        channel_id: null,
+        self_deaf: null,
+        self_mute: null
+      }
+    });
+
+    this.connected = false;
+
+    return this.connected;
+  }
+
   public play(track: string, options: PlayOptions = {}) {
     this.send("play", {
       track,
