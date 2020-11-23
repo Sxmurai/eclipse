@@ -152,6 +152,14 @@ export class Socket {
             player!.emit("stuck", data.thresholdMs);
             break;
 
+          case "WebSocketClosedEvent":
+            player!.emit("closed", {
+              reason: data.reason,
+              code: data.code,
+              remote: data.byRemote,
+            });
+            break;
+
           default:
             console.warn(
               `Unknown event type, here is the raw data:\n\n${JSON.stringify(
