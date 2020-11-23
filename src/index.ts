@@ -53,11 +53,22 @@ export interface ManagerOptions {
    */
   user: string;
 
+    /**
+   * The resume options
+   * @type {?Resume}
+   */
+  resume?: Resume;
+
   /**
    * The function to send things to discord
    * @type {((id: string, payload: any) => any)}
    */
   send: ((id: string, payload: any) => any);
+}
+
+interface Resume {
+  timeout?: number;
+  key?: string;
 }
 
 export interface ConnectOptions {
