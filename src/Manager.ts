@@ -4,6 +4,9 @@ import { EventEmitter } from "events";
 import { Socket } from "./Socket";
 import { Player } from "./Player";
 
+import fetch from "node-fetch";
+import { parse } from "url";
+
 export class Manager extends EventEmitter {
   public options: ManagerOptions;
 
@@ -58,5 +61,26 @@ export class Manager extends EventEmitter {
     }
 
     return player;
+  }
+
+  public search(term: string, node?: Socket) {
+    node = node ?? [...this.sockets.values()][0];
+
+    if (!["https:", "http:"].includes(parse(term).protocol!)) {
+      term = ["ytsearch:", "scearch:"].includes(term)
+        ? term
+        : `ytsearch:${encodeURIComponent(term)}`;
+    }
+
+    return fetch(
+      `http${node.https ? "s" : ""}://${node.host}:${
+        node.port
+      }/loadtrack?identifier=${term}`,
+      {
+        headers: {
+          authentication: node.password,
+        },
+      }
+    ).then((res) => res.json())
   }
 }
