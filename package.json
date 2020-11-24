@@ -11,7 +11,7 @@
     "compile": "rm -rf build && tsc && clear",
     "typings": "dts-bundle --name eclipse --main build/ --out types/index.d.ts"
   },
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
   "dependencies": {
     "node-fetch": "^2.6.1",
     "ws": "^7.4.0"
@@ -20,5 +20,12 @@
     "@types/node": "^14.14.9",
     "@types/node-fetch": "^2.5.7",
     "@types/ws": "^7.4.0"
-  }
+  },
+  "keywords": [
+    "lavalink",
+    "javascript",
+    "eris",
+    "discord.js",
+    "music"
+  ]
 }
