@@ -85,7 +85,6 @@ export class Manager extends EventEmitter {
   }
 }
 
-
 export interface Manager {
   /**
    * When a socket has emitted the ready event

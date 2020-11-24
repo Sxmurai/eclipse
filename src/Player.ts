@@ -192,3 +192,51 @@ export class Player extends EventEmitter {
     return this.socket.send(op, { guildId: this.guild, ...data });
   }
 }
+
+export interface Player {
+  /**
+   * When a new track has started
+   * @param {"start"} event 
+   * @param {(track: string) => any} listener 
+   * @return {this}
+   */
+  on(event: "start", listener: (track: string) => any): this;
+
+  /**
+   * When a track has ended
+   * @param {"end"} event 
+   * @param {(reason?: string) => any} listener
+   * @return {this} 
+   */
+  on(event: "end", listener: (reason?: string) => any): this;
+
+  /**
+   * When the track has emitted an error
+   * @param {"error"} event 
+   * @param {(error: Error) => any} listener
+   * @return {this} 
+   */
+  on(event: "error", listener: (error: Error) => any): this;
+
+  /**
+   * When a track gets stuck
+   * @param {"stuck"} event 
+   * @param {(thresholdMs: number) => any} listener
+   * @return {this} 
+   */
+  on(event: "stuck", listener: (thresholdMS: number) => any): this;
+
+  /**
+   * When the websocket closes during the track
+   * @param {"closed"} event 
+   * @param {(event: StuckEvent) => any} listener 
+   * @return {this}
+   */
+  on(event: "closed", listener: (event: StuckEvent) => any): this;
+}
+
+interface StuckEvent {
+  reason?: string;
+  code?: number;
+  byRemote?: boolean
+}
