@@ -5,7 +5,6 @@ import { Socket } from "./Socket";
 import { Player } from "./Player";
 
 import fetch from "node-fetch";
-import { parse } from "url";
 
 export class Manager extends EventEmitter {
   public options: ManagerOptions;
