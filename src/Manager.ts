@@ -66,16 +66,10 @@ export class Manager extends EventEmitter {
   public search(term: string, node?: Socket) {
     node = node ?? [...this.sockets.values()][0];
 
-    if (!["https:", "http:"].includes(parse(term).protocol!)) {
-      term = ["ytsearch:", "scearch:"].includes(term)
-        ? term
-        : `ytsearch:${encodeURIComponent(term)}`;
-    }
-
     return fetch(
       `http${node.https ? "s" : ""}://${node.host}:${
         node.port
-      }/loadtrack?identifier=${term}`,
+      }/loadtracks?identifier=${term}`,
       {
         headers: {
           authentication: node.password,
