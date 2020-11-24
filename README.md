@@ -3,6 +3,28 @@
   <h4>A generic lavalink client</h4>
 </div>
 
+---
+
+## Installation
+
+Yarn:
+```
+yarn add eclipse.js
+```
+
+NPM:
+```
+npm install eclipse.js
+```
+
+---
+
+## Documentation
+
+For now, you can find the documentation at the GitHub repos [wiki](https://github.com/Sxmurai/eclipse/wiki)
+
+---
+
 ## Examples
 
 eris:
