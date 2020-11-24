@@ -84,3 +84,30 @@ export class Manager extends EventEmitter {
     ).then((res) => res.json())
   }
 }
+
+
+export interface Manager {
+  /**
+   * When a socket has emitted the ready event
+   * @param {"socketReady"} event 
+   * @param {(socket: Socket) => any} listener 
+   * @return {this}
+   */
+  on(event: "socketReady", listener: (socket: Socket) => any): this;
+
+  /**
+   * When the socket has emitted the closed event
+   * @param {"socketClosed"} event 
+   * @param {(socket: Socket, code?: number, reason?: string) => any} listener
+   * @return {this} 
+   */
+  on(event: "socketClosed", listener: (socket: Socket, code?: number, reason?: string) => any): this;
+
+  /**
+   * When the websocket errors
+   * @param {"socketError"} event 
+   * @param {(socket: Socket, error: Error) => any} listener
+   * @return {this} 
+   */
+  on(event: "socketError", listener: (socket: Socket, error: Error) => any): this;
+}
